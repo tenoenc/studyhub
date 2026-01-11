@@ -75,7 +75,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
             // Case 3: 자식이 둘인 경우입니다.
             // 3-1. 오른쪽 서브트리에서 가장 작은 값(후계자)을 찾아 현재 노드에 덮어씌웁니다.
-            current.data = findMin(current.right);
+            current.data = minValue(current.right);
             // 3-2. 값을 복사해왔으므로 오른쪽 서브트리에서 원래 있던 후계자 노드를 삭제합니다.
             current.right = deleteRecursive(current.right, current.data);
         }
@@ -99,17 +99,17 @@ public class BinarySearchTree<T extends Comparable<T>> {
         return true;
     }
 
-    public T findMin() {
+    public T minValue() {
         if (root == null) return null;
-        return findMin(root);
+        return minValue(root);
     }
 
     // 최솟값은 트리의 성질상 항상 가장 왼쪽 끝 노드에 위치합니다.
-    private T findMin(Node<T> node) {
-        return node.left == null ? node.data : findMin(node.left);
+    private T minValue(Node<T> node) {
+        return node.left == null ? node.data : minValue(node.left);
     }
 
-    public T findMax() {
+    public T maxValue() {
         if (root == null) return null;
         Node<T> current = root;
         // 최댓값은 트리의 성질상 항상 가장 오른쪽 끝 노드에 위치합니다.

@@ -4,34 +4,34 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class MyBinarySearchTree<T extends Comparable<T>> {
-    private class Node<T> {
+    private class Node {
         private T data;
-        private Node<T> left;
-        private Node<T> right;
+        private Node left;
+        private Node right;
 
         Node(T data) {
             this.data = data;
-            this.left = this.right = null;
         }
     }
 
-    Node<T> root;
-    int size;
+    private Node root;
+    private int size;
 
     public void insert(T data) {
-        if (data == null) return;
         root = insertRecursive(root, data);
         size++;
     }
 
-    private Node<T> insertRecursive(Node<T> current, T data) {
-        if (current == null) return new Node<T>(data);
-        if (data.compareTo(current.data) < 0) {
-            current.left = insertRecursive(current.left, data);
-        } else if (data.compareTo(current.data) > 0) {
-            current.right = insertRecursive(current.right, data);
+    private Node insertRecursive(Node node, T data) {
+        if (node == null) return new Node(data);
+
+        if (data.compareTo(node.data) < 0) {
+            node.left = insertRecursive(node.left, data);
+        } else if (data.compareTo(node.data) > 0) {
+            node.right = insertRecursive(node.right, data);
         }
-        return current;
+
+        return node;
     }
 
     public void delete(T data) {
@@ -41,61 +41,58 @@ public class MyBinarySearchTree<T extends Comparable<T>> {
         }
     }
 
-    private Node<T> deleteRecursive(Node<T> current, T data) {
-        if (current == null) return null;
-        if (data.compareTo(current.data) < 0) {
-            current.left = insertRecursive(current.left, data);
-        } else if (data.compareTo(current.data) > 0) {
-            current.right = insertRecursive(current.right, data);
+    private Node deleteRecursive(Node node, T data) {
+        if (node == null) return null;
+
+        if (data.compareTo(node.data) < 0) {
+            node.left = deleteRecursive(node.left, data);
+        } else if (data.compareTo(node.data) > 0) {
+            node.right = deleteRecursive(node.right, data);
         } else {
-            if (current.left == null) return current.right;
-            if (current.right == null) return current.left;
+            if (node.left == null) return node.right;
+            if (node.right == null) return node.left;
 
-            current.data = findMin(current.right);
-            current.right = deleteRecursive(current.right, data);
+            node.data = minValue(node.right);
+            node.right = deleteRecursive(node.right, node.data);
         }
-        return current;
+        return node;
     }
 
-    private boolean contains(T data) {
-        if (data == null) return false;
-        return containsRecursive(root, data);
+    public  T minValue() {
+        return minValue(root);
     }
 
-    private boolean containsRecursive(Node<T> current, T data) {
-        if (root == null) return false;
-        if (data == current.data) return true;
-
-        return data.compareTo(current.data) < 0 ? containsRecursive(current.left, data) :
-                containsRecursive(current.right, data);
+    private T minValue(Node node) {
+        if (node == null) return null;
+        return node.left == null ? node.data : minValue(node.left);
     }
 
-    public T findMin() {
+    public T maxValue() {
         if (root == null) return null;
-        return findMin(root);
-    }
-
-    private T findMin(Node<T> node) {
-        return node.left == null ? node.data : findMin(node.left);
-    }
-
-    public T findMax() {
-        if (root == null) return null;
-        Node<T> current = root;
+        Node current = root;
         while (current.right != null) {
             current = current.right;
         }
         return current.data;
     }
 
+    public boolean contains(T data) {
+        return containsRecursive(root, data);
+    }
+
+    private boolean containsRecursive(Node node, T data) {
+        if (node == null) return false;
+        if (data.compareTo(node.data) == 0) return true;
+        return data.compareTo(node.data) < 0 ? containsRecursive(node.left, data) : containsRecursive(node.right, data);
+    }
+
     public void inorder() {
-        if (root == null) return;
         System.out.print("Inorder: ");
         inorderRecursive(root);
         System.out.println();
     }
 
-    private void inorderRecursive(Node<T> node) {
+    private void inorderRecursive(Node node) {
         if (node == null) return;
         inorderRecursive(node.left);
         System.out.print(node.data + " ");
@@ -103,52 +100,54 @@ public class MyBinarySearchTree<T extends Comparable<T>> {
     }
 
     public void preorder() {
-        if (root == null) return;
         System.out.print("Preorder: ");
-        postorderRecursive(root);
+        preorderRecursive(root);
         System.out.println();
     }
 
-    private void preorderRecursive(Node<T> node) {
+    private void preorderRecursive(Node node) {
         if (node == null) return;
         System.out.print(node.data + " ");
-        postorderRecursive(node.left);
-        postorderRecursive(node.right);
+        preorderRecursive(node.left);
+        preorderRecursive(node.right);
     }
 
     public void postorder() {
-        if (root == null) return;
         System.out.print("Postorder: ");
         postorderRecursive(root);
         System.out.println();
     }
 
-    private void postorderRecursive(Node<T> node) {
+    private void postorderRecursive(Node node) {
         if (node == null) return;
-        System.out.print(node.data + " ");
         postorderRecursive(node.left);
         postorderRecursive(node.right);
+        System.out.print(node.data + " ");
+    }
+
+    public int size() { return size; }
+    public int height() {
+        return calculateHeight(root);
+    }
+
+    private int calculateHeight(Node node) {
+        if (node == null) return 0;
+        return 1 + Math.max(calculateHeight(node.left), calculateHeight(node.right));
     }
 
     public void levelOrder() {
-        if (root == null) return;
-        System.out.println("Level-order: ");
-        Queue<Node<T>> queue = new LinkedList<>();
+        System.out.print("Level-Order: ");
+
+        Queue<Node> queue = new LinkedList<>();
         queue.add(root);
+
         while (!queue.isEmpty()) {
-            Node<T> tempNode = queue.poll();
+            Node tempNode = queue.poll();
             System.out.print(tempNode.data + " ");
             if (tempNode.left != null) queue.add(tempNode.left);
             if (tempNode.right != null) queue.add(tempNode.right);
         }
-    }
 
-    public int size() { return size; }
-
-    public int height() { return calculateHeight(root); }
-
-    private int calculateHeight(Node<T> node) {
-        if (node == null) return 0;
-        return 1 + Math.max(calculateHeight(node.left), calculateHeight(node.right));
+        System.out.println();
     }
 }

@@ -6,24 +6,25 @@ import java.util.Queue;
 public class MyAVLTree<T extends Comparable<T>> {
 
     private class Node {
-        T data;
-        int height;
-        Node left, right;
+        private T data;
+        private int height;
+        private Node left;
+        private Node right;
 
         Node(T data) {
-            this.data = data;
             this.height = 1;
+            this.data = data;
         }
     }
 
-    private Node root;
+    Node root;
 
     private int height(Node node) {
-        return (node == null) ? 0 : node.height;
+        return node == null ? 0 : node.height;
     }
 
-    private int getBalance(Node node) {
-        return (node == null) ? 0 : height(node.left) - height(node.right);
+    private int balance(Node node) {
+        return node == null ? 0 : height(node.left) - height(node.right);
     }
 
     private void updateHeight(Node node) {
@@ -43,17 +44,17 @@ public class MyAVLTree<T extends Comparable<T>> {
         return x;
     }
 
-    private Node rotateLeft(Node x) {
-        Node y = x.right;
-        Node T2 = y.left;
+    private Node rotateLeft(Node y) {
+        Node x = y.right;
+        Node T2 = x.left;
 
-        y.left = x;
-        x.right = T2;
+        x.left = y;
+        y.right = T2;
 
-        updateHeight(x);
         updateHeight(y);
+        updateHeight(x);
 
-        return y;
+        return x;
     }
 
     public void insert(T data) {
@@ -65,7 +66,7 @@ public class MyAVLTree<T extends Comparable<T>> {
 
         if (data.compareTo(node.data) < 0) {
             node.left = insertRecursive(node.left, data);
-        } else if (data.compareTo(node.data) > 0) {
+        } else if(data.compareTo(node.data) > 0) {
             node.right = insertRecursive(node.right, data);
         } else {
             return node;
@@ -77,16 +78,16 @@ public class MyAVLTree<T extends Comparable<T>> {
     }
 
     private Node rebalance(Node node, T data) {
-        int balance = getBalance(node);
+        int balance = balance(node);
 
         // LL Case
         if (balance > 1 && data.compareTo(node.left.data) < 0) {
-            return rotateLeft(node);
+            return rotateRight(node);
         }
 
         // RR Case
         if (balance < -1 && data.compareTo(node.right.data) > 0) {
-            return rotateRight(node);
+            return rotateLeft(node);
         }
 
         // LR Case
@@ -113,17 +114,20 @@ public class MyAVLTree<T extends Comparable<T>> {
 
         if (data.compareTo(node.data) < 0) {
             node.left = deleteRecursive(node.left, data);
-        } else if (data.compareTo(node.data) > 0) {
+        } else if(data.compareTo(node.data) > 0) {
             node.right = deleteRecursive(node.right, data);
         } else {
-            if ((node.left == null) || (node.right) == null) {
-                Node temp = (node.left != null) ? node.left : node.right;
+            // 자식이 하나이거나 없는 경우
+            if (node.left == null || node.right == null) {
+                Node temp = node.left != null ? node.left : node.right;
                 if (temp == null) {
                     node = null;
                 } else {
                     node = temp;
                 }
-            } else {
+            }
+            // 자식이 둘인 경우
+            else {
                 Node temp = minValueNode(node.right);
                 node.data = temp.data;
                 node.right = deleteRecursive(node.right, temp.data);
@@ -133,22 +137,20 @@ public class MyAVLTree<T extends Comparable<T>> {
         if (node == null) return node;
 
         updateHeight(node);
-        int balance = getBalance(node);
+        int balance = balance(node);
 
-        // LL Case
-        if (balance > 1 && data.compareTo(node.left.data) < 0) return rotateLeft(node);
-
-        // RR Case
-        if (balance < -1 && data.compareTo(node.right.data) > 0) return rotateRight(node);
-
-        // LR Case
-        if (balance > 1 && data.compareTo(node.left.data) > 0) {
+        if (balance > 1 && balance(node.left) >= 0) {
+            return rotateRight(node);
+        }
+        if (balance > 1 && balance(node.left) < 0) {
             node.left = rotateLeft(node.left);
             return rotateRight(node);
         }
 
-        // RL Case
-        if (balance < -1 && data.compareTo(node.right.data) < 0) {
+        if (balance < -1 && balance(node.right) <= 0) {
+            return rotateLeft(node);
+        }
+        if (balance < -1 && balance(node.right) > 0) {
             node.right = rotateRight(node.right);
             return rotateLeft(node);
         }
@@ -157,6 +159,7 @@ public class MyAVLTree<T extends Comparable<T>> {
     }
 
     private Node minValueNode(Node node) {
+        if (node == null) return null;
         return node.left == null ? node : minValueNode(node.left);
     }
 
@@ -165,8 +168,7 @@ public class MyAVLTree<T extends Comparable<T>> {
             System.out.println("Tree is empty.");
             return;
         }
-
-        Queue<Node> queue =  new LinkedList<>();
+        Queue<Node> queue = new LinkedList<>();
         queue.add(root);
         while (!queue.isEmpty()) {
             int levelSize = queue.size();

@@ -1,13 +1,10 @@
 package posts.tree;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MyTrie {
 
-    private static class TrieNode {
+    private class TrieNode {
         private Map<Character, TrieNode> children = new HashMap<>();
         private boolean isEndOfWord;
 
@@ -18,7 +15,7 @@ public class MyTrie {
 
     private final TrieNode root;
 
-    public MyTrie() {
+    MyTrie() {
         root = new TrieNode();
     }
 
@@ -31,13 +28,37 @@ public class MyTrie {
     }
 
     public boolean search(String s) {
-        TrieNode current = root;
-        TrieNode node = getLastNode(s);
-        return node != null && node.isEndOfWord;
+        TrieNode lastNode = getLastNode(s);
+        return lastNode != null && lastNode.isEndOfWord;
     }
 
-    public boolean startsWith(String s) {
-        return getLastNode(s) != null;
+    public void delete(String s) {
+        delete(root, s, 0);
+    }
+
+    private boolean delete(TrieNode node, String s, int index) {
+        if (s.length() == index) {
+            if (!node.isEndOfWord) return false;
+            node.isEndOfWord = false;
+            return node.isEmpty();
+        }
+
+        char ch = s.charAt(index);
+        TrieNode childNode = node.children.get(ch);
+        if (childNode == null) return false;
+
+        boolean shouldDelete = delete(childNode, s, index + 1);
+
+        if (shouldDelete) {
+            node.children.remove(ch);
+            return !node.isEndOfWord && node.isEmpty();
+        }
+
+        return false;
+    }
+
+    public boolean startsWith(String prefix) {
+        return getLastNode(prefix) != null;
     }
 
     private TrieNode getLastNode(String s) {
@@ -49,46 +70,24 @@ public class MyTrie {
         return current;
     }
 
-    public void delete(String s) {
-        delete(root, s, 0);
-    }
-
-    private boolean delete(TrieNode current, String s, int index) {
-        if (s.length() == index) {
-            if (!current.isEndOfWord) return false;
-            current.isEndOfWord = false;
-            return true;
-        }
-
-        char ch = s.charAt(index);
-        TrieNode node = current.children.get(ch);
-        if (node == null) return false;
-
-        boolean shouldDeleteCurrentNode = delete(node, s, index + 1);
-        if (shouldDeleteCurrentNode) {
-            current.children.remove(ch);
-            return !current.isEndOfWord && current.isEmpty();
-        }
-
-        return false;
-    }
-
     public List<String> autocomplete(String prefix) {
         List<String> results = new ArrayList<>();
+
         TrieNode lastNode = getLastNode(prefix);
         if (lastNode != null) {
             findAllWords(lastNode, prefix, results);
         }
+
         return results;
     }
 
-    private void findAllWords(TrieNode node, String currentWord, List<String> results) {
+    private void findAllWords(TrieNode node, String s, List<String> results) {
         if (node.isEndOfWord) {
-            results.add(currentWord);
+            results.add(s);
         }
 
         for (Map.Entry<Character, TrieNode> entry : node.children.entrySet()) {
-            findAllWords(entry.getValue(), currentWord + entry.getKey(), results);
+            findAllWords(entry.getValue(), s + entry.getKey(), results);
         }
     }
 }

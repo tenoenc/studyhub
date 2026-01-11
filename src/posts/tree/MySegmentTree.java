@@ -9,6 +9,7 @@ public class MySegmentTree {
         this.n = arr.length;
         this.tree = new long[4 * n];
         this.lazy = new long[4 * n];
+
         build(arr, 1, 0, n - 1);
     }
 
@@ -25,7 +26,7 @@ public class MySegmentTree {
         tree[node] = tree[2 * node] + tree[2 * node + 1];
     }
 
-    private void push(int node, int start, int end) {
+    public void push(int node, int start, int end) {
         if (lazy[node] != 0) {
             tree[node] += (end - start + 1) * lazy[node];
 
@@ -45,7 +46,7 @@ public class MySegmentTree {
     private void updateRange(int node, int start, int end, int left, int right, int val) {
         push(node, start, end);
 
-        if (left > end || right < start) return;
+        if (end < left || right > start) return;
 
         if (left <= start && end <= right) {
             lazy[node] += val;
@@ -67,11 +68,8 @@ public class MySegmentTree {
     private long queryRange(int node, int start, int end, int left, int right) {
         push(node, start, end);
 
-        if (left > end || right < start) return 0;
-
-        if (left <= start && end <= right) {
-            return tree[node];
-        }
+        if (end < left || right < start) return 0;
+        if (left <= start && end <= right) return tree[node];
 
         int mid = (start + end) / 2;
         return queryRange(2 * node, start, mid, left, right) +

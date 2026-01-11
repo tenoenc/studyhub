@@ -2,7 +2,7 @@ package posts.tree;
 
 public class AVLTreeTest {
     public static void main(String[] args) {
-        AVLTree<Integer> avl = new AVLTree<>();
+        MyAVLTree<Integer> avl = new MyAVLTree<>();
 
         /* 1. RR 회전 유도 (Right-Right Case)
          * 10 -> 20 -> 30 순서로 넣으면 오른쪽으로 치우친 편향 트리가 되지만,

@@ -2,7 +2,7 @@ package posts.tree;
 
 public class BinarySearchTreeTest {
     public static void main(String[] args) {
-        BinarySearchTree<Integer> bst = new BinarySearchTree<>();
+        MyBinarySearchTree<Integer> bst = new MyBinarySearchTree<>();
 
         int[] data = {50, 30, 70, 20, 40, 60, 80};
         for (int x : data) bst.insert(x);
@@ -10,8 +10,8 @@ public class BinarySearchTreeTest {
         System.out.println("=== 트리 정보 ===");
         System.out.println("Size: " + bst.size());
         System.out.println("Height: " + bst.height());
-        System.out.println("Max Value: " + bst.findMax());
-        System.out.println("Min Value: " + bst.findMin());
+        System.out.println("Max Value: " + bst.minValue());
+        System.out.println("Min Value: " + bst.maxValue());
 
         System.out.println("\n=== 순회 결과 ===");
         bst.preorder();
